@@ -5,6 +5,7 @@
     /// </summary>
     public class PersonModel
     {
+        public int Id { get; set; }
         /// <summary>
         /// First name of this person
         /// </summary>

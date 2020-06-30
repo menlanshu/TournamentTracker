@@ -7,6 +7,7 @@ namespace TrackerLibrary.Models
     /// </summary>
     public class MatchupModel
     {
+        public int Id { get; set; }
         /// <summary>
         /// A list of match up entrys for current MatchupModel
         /// </summary>

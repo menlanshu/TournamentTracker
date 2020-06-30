@@ -12,7 +12,8 @@ namespace TrackerLibrary
         /// <summary>
         /// We may have one or more place to save our data
         /// </summary>
-        public static IDataConnection Connection { get; private set; } 
+        public static IDataConnection Connection { get; private set; }
+        public static string ConnString { get; private set; }
 
         /// <summary>
         /// Initial Connections based on the input configuration
@@ -26,19 +27,31 @@ namespace TrackerLibrary
                 case DataBaseType.Sql:
                     SqlConnector sql = new SqlConnector();
                     Connection = sql;
+                    GetConnString("Tournaments", db);
                     break;
                 case DataBaseType.TextFile:
                     TextConnector text = new TextConnector();
                     Connection = text;
+                    GetConnString("filePath", db);
                     break;
                 default:
                     break;
             }
         }
         
-        public static string ConnString(string name)
+        private static void GetConnString(string name, DataBaseType db)
         {
-            return ConfigurationManager.ConnectionStrings[name].ConnectionString;
+            switch (db)
+            {
+                case DataBaseType.Sql:
+                    ConnString =  ConfigurationManager.ConnectionStrings[name].ConnectionString;
+                    break;
+                case DataBaseType.TextFile:
+                    ConnString = ConfigurationManager.AppSettings[name];
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ namespace TrackerLibrary.DataAccess
         /// <returns>The prize information, including the unique identifier.</returns>
         public PrizeModel CreatePrize(PrizeModel model)
         {
-            using(var context = new SQLiteContext(GlobalConfig.ConnString("Tournaments")))
+            using(var context = new SQLiteContext(GlobalConfig.ConnString))
             {
                 context.Prizes.Add(model);
                 context.SaveChanges();
