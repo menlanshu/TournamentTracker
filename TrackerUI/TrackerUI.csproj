@@ -115,5 +115,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TrackerNetStandLibrary\TrackerNetStandLibrary.csproj">
+      <Project>{4e9371dd-a128-45be-acb2-4b6ad795effb}</Project>
+      <Name>TrackerNetStandLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

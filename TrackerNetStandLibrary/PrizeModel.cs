@@ -1,4 +1,5 @@
-﻿using System.Security.Principal;
+﻿using System;
+using System.Security.Principal;
 
 namespace TrackerLibrary
 {
@@ -24,5 +25,24 @@ namespace TrackerLibrary
         /// Prize percentaget for this prize
         /// </summary>
         public double PrizePercentage { get; set; }
+
+        public PrizeModel()
+        {
+
+        }
+
+        public PrizeModel(string placeName, string placeNumber, string prizeAmount, string prizePercentage)
+        {
+            PlaceName = placeName;
+
+            int.TryParse(placeNumber, out int placeNumberInt);
+            PlaceNumber = placeNumberInt;
+
+            decimal.TryParse(prizeAmount, out decimal prizeAmountDecimal);
+            PrizeAmount = prizeAmountDecimal;
+
+            double.TryParse(prizePercentage, out double prizePercentageDouble);
+            PrizePercentage = prizePercentageDouble;
+        }
     }
 }

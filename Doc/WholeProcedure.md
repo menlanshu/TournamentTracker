@@ -7,6 +7,12 @@
 5. Data Design
 6. User interface design
 7. Logic planning
+Develop Start
+1. Data Library
+2. User Interface
+3. Create Database
+4. Start from a simple form
+- wire up Prize Form
 
 Key Concepts:
 - Email
