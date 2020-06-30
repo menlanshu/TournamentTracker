@@ -10,6 +10,9 @@ namespace TrackerLibrary.DataAccess
     {
         public string ConnString { get; private set; }
         public DbSet<PrizeModel> Prizes { get; set; }
+        public DbSet<PersonModel> People { get; set; }
+        //public DbSet<TeamModel> Teams { get; set; }
+        //public DbSet<TeamMemberModel> TeamMembers { get; set; }
 
         public SQLiteContext(string connString)
         {
@@ -24,6 +27,9 @@ namespace TrackerLibrary.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PrizeModel>().ToTable("Prizes");
+            modelBuilder.Entity<PersonModel>().ToTable("People");
+            //modelBuilder.Entity<TeamModel>().ToTable("Teams");
+            //modelBuilder.Entity<TeamMemberModel>().ToTable("TeamMembers");
         }
     }
 }

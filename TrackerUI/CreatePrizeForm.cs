@@ -13,9 +13,9 @@ using TrackerLibrary.Models;
 
 namespace TrackerUI
 {
-    public partial class CreatePrize : Form
+    public partial class CreatePrizeForm : Form
     {
-        public CreatePrize()
+        public CreatePrizeForm()
         {
             InitializeComponent();
         }
@@ -61,43 +61,43 @@ namespace TrackerUI
             if (!int.TryParse(placeNumberText.Text, out int placeNumber))
             {
                 output = false;
-                errorDesc = "Place Number is not valid number" ;
+                errorDesc = "Place Number is not valid number\n" ;
             }
 
             if(placeNumber < 1)
             {
                 output = false;
-                errorDesc += "\nPlace Number can not be small then 1";
+                errorDesc += "Place Number can not be small then 1\n";
             }
 
             if(placeNameText.Text.Length == 0)
             {
                 output = false;
-                errorDesc += "\nPlace Name can not be empty";
+                errorDesc += "Place Name can not be empty\n";
             }
 
             //validate Prize amount which should be a decimal
             if (!decimal.TryParse(prizeAmountText.Text, out decimal prizeAmount))
             {
                 output = false;
-                errorDesc += "\nPrize Amount input invalid for parse to number";
+                errorDesc += "Prize Amount input invalid for parse to number\n";
             }
             if (!double.TryParse(prizePercentageText.Text, out double prizePercentage))
             {
                 output = false;
-                errorDesc += "\nPrize Percentage input invalid for parse to number";
+                errorDesc += "Prize Percentage input invalid for parse to number\n";
             }
 
             if (prizeAmount <= 0 && prizePercentage <= 0)
             {
                 output = false;
-                errorDesc += "\nPrize Amount and PrizePercentage can not be both smaller than 0";
+                errorDesc += "Prize Amount and PrizePercentage can not be both smaller than 0\n";
             }
 
             if(prizePercentage < 0 || prizePercentage > 100)
             {
                 output = false;
-                errorDesc += "\nPrize Percentage can not be smaller than 0 and can not be larger than 100";
+                errorDesc += "Prize Percentage can not be smaller than 0 and can not be larger than 100\n";
             }
 
             return (output, errorDesc);

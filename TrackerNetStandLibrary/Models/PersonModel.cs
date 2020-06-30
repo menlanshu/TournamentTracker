@@ -22,5 +22,17 @@
         /// Cellphone number of this person
         /// </summary>
         public string CellphoneNumber { get; set; }
+
+        public PersonModel()
+        {
+
+        }
+        public PersonModel(string firstName, string lastName, string emailAddress, string cellPhoneNumber)
+        {
+            FirstName = firstName;
+            LastName = lastName;
+            EmailAddress = emailAddress;
+            CellphoneNumber = cellPhoneNumber;
+        }
     }
 }

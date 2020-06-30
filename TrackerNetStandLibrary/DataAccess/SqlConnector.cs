@@ -8,7 +8,22 @@ namespace TrackerLibrary.DataAccess
 {
     public class SqlConnector : IDataConnection
     {
-        // TODO - Make the CreatePrize method actually save to the database
+        /// <summary>
+        /// Save a new Person to the database
+        /// </summary>
+        /// <param name="model">A new person information</param>
+        /// <returns>The person information, include the unique identifier</returns>
+        public PersonModel CreatePerson(PersonModel model)
+        {
+            using(var context = new SQLiteContext(GlobalConfig.ConnString))
+            {
+                context.People.Add(model);
+                context.SaveChanges();
+
+                return model;
+            }
+        }
+
         /// <summary>
         /// Saves a new prize to the database
         /// </summary>
