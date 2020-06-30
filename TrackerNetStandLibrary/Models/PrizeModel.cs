@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Principal;
 
-namespace TrackerLibrary
+namespace TrackerLibrary.Models
 {
     /// <summary>
     /// Represent a prize

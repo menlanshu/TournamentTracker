@@ -1,12 +1,13 @@
 ﻿using System;
 
-namespace TrackerLibrary
+namespace TrackerLibrary.Models
 {
     /// <summary>
     /// Represent matchup detail of a matchup?
     /// </summary>
     public class MatchupEntryModel
     {
+        public int Id { get; set; }
         /// <summary>
         /// Represents one team in the matchup.
         /// </summary>

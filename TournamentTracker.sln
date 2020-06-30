@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackerUI", "TrackerUI\Trac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF_TrackerUI", "WPF_TrackerUI\WPF_TrackerUI.csproj", "{CF1526B5-0D5F-40E9-A933-A924BD4B961F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackerNetStandLibrary", "TrackerNetStandLibrary\TrackerNetStandLibrary.csproj", "{4E9371DD-A128-45BE-ACB2-4B6AD795EFFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrackerLibrary", "TrackerNetStandLibrary\TrackerLibrary.csproj", "{4E9371DD-A128-45BE-ACB2-4B6AD795EFFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

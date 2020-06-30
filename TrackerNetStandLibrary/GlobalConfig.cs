@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Net.Http.Headers;
 using System.Text;
+using TrackerLibrary.DataAccess;
 
 namespace TrackerLibrary
 {
@@ -9,28 +12,33 @@ namespace TrackerLibrary
         /// <summary>
         /// We may have one or more place to save our data
         /// </summary>
-        public static List<IDataConnection> Connections { get; private set; } = new List<IDataConnection>();
+        public static IDataConnection Connection { get; private set; } 
 
         /// <summary>
         /// Initial Connections based on the input configuration
         /// </summary>
         /// <param name="database"></param>
         /// <param name="textFiles"></param>
-        public static void InitializeConnections(bool database, bool textFiles)
+        public static void InitializeConnections(DataBaseType db)
         {
-            if(database)
+            switch (db)
             {
-                // TODO - Set up the SQL Connector properly
-                SqlConnector sql = new SqlConnector();
-                Connections.Add(sql);
+                case DataBaseType.Sql:
+                    SqlConnector sql = new SqlConnector();
+                    Connection = sql;
+                    break;
+                case DataBaseType.TextFile:
+                    TextConnector text = new TextConnector();
+                    Connection = text;
+                    break;
+                default:
+                    break;
             }
-
-            if(textFiles)
-            {
-                // TODO - Set up the Text Connection properly
-                TextConnection text = new TextConnection();
-                Connections.Add(text);
-            }
+        }
+        
+        public static string ConnString(string name)
+        {
+            return ConfigurationManager.ConnectionStrings[name].ConnectionString;
         }
     }
 }
