@@ -93,6 +93,7 @@
             this.addMemberButton.TabIndex = 12;
             this.addMemberButton.Text = "Add Member";
             this.addMemberButton.UseVisualStyleBackColor = true;
+            this.addMemberButton.Click += new System.EventHandler(this.addMemberButton_Click);
             // 
             // selectMemberDropDown
             // 
@@ -245,6 +246,7 @@
             this.deleteSelectedTeamMember.TabIndex = 18;
             this.deleteSelectedTeamMember.Text = "Delete Selected";
             this.deleteSelectedTeamMember.UseVisualStyleBackColor = true;
+            this.deleteSelectedTeamMember.Click += new System.EventHandler(this.deleteSelectedTeamMember_Click);
             // 
             // createTeamButton
             // 

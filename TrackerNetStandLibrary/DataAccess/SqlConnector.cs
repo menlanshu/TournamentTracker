@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using TrackerLibrary.Models;
 
@@ -37,6 +38,14 @@ namespace TrackerLibrary.DataAccess
                 context.SaveChanges();
 
                 return model;
+            }
+        }
+
+        public List<PersonModel> GetPerson_All()
+        {
+            using (var context = new SQLiteContext(GlobalConfig.ConnString))
+            {
+                return context.People.ToList();
             }
         }
     }

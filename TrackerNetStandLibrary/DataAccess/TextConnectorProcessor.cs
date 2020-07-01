@@ -46,11 +46,13 @@ namespace TrackerLibrary.DataAccess.TextHelpers
             //Convert each line to T and add it to output list
             foreach (string line in lines)
             {
-                var temp = Activator.CreateInstance(typeof(T));
                 string[] cols = line.Split(',');
+
+                //Use activator to create a instance for generic type
+                var temp = Activator.CreateInstance(typeof(T));
                 int currentCount = 0;
 
-                foreach (var propInfo in typeof(T).GetProperties())
+                foreach (var propInfo in typeof(T).GetProperties().Where(x => x.GetCustomAttributes().Count() == 0))
                 {
                     if (propInfo.PropertyType == typeof(int))
                     {
@@ -93,9 +95,9 @@ namespace TrackerLibrary.DataAccess.TextHelpers
             foreach (var model in models)
             {
                 StringBuilder currentLine = new StringBuilder();
-                foreach (PropertyInfo property in properties)
+                foreach (PropertyInfo propInfo in properties.Where(x => x.GetCustomAttributes().Count() == 0))
                 {
-                    currentLine.Append(property.GetValue(model)).Append(",");
+                    currentLine.Append(propInfo.GetValue(model)).Append(",");
                 }
                 lines.Add(currentLine.Remove(currentLine.Length - 1, 1).ToString());
             }

@@ -1,4 +1,7 @@
-﻿namespace TrackerLibrary.Models
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+
+namespace TrackerLibrary.Models
 {
     /// <summary>
     /// Represent a person
@@ -22,6 +25,16 @@
         /// Cellphone number of this person
         /// </summary>
         public string CellphoneNumber { get; set; }
+
+        // TODO - Find a better way to exclude this item from covert file
+        [DataMember]
+        public string FullName
+        {
+            get
+            {
+                return $"{FirstName} {LastName}";
+            }
+        }
 
         public PersonModel()
         {

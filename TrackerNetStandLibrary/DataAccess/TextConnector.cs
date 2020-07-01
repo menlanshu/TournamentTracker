@@ -58,5 +58,18 @@ namespace TrackerLibrary.DataAccess
             return model;
         }
 
+        /// <summary>
+        /// Get person list from people text file
+        /// </summary>
+        /// <returns>A list of person model</returns>
+        public List<PersonModel> GetPerson_All()
+        {
+            // Get List of person from text file
+            List<PersonModel> people = new List<PersonModel>();
+
+            people = PeopleFile.FullFilePath().LoadFile().ConvertToModel<PersonModel>();
+
+            return people;
+        }
     }
 }
