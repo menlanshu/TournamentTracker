@@ -62,9 +62,18 @@ namespace TrackerLibrary.DataAccess
             return model;
         }
 
+        /// <summary>
+        /// Get all persons from DB
+        /// </summary>
+        /// <returns></returns>
         public List<PersonModel> GetPerson_All()
         {
             return _SQLiteContext.People.ToList();
+        }
+
+        public List<TeamModel> GetTeam_All()
+        {
+            return _SQLiteContext.Teams.Include(p => p.TeamMemberModels).ThenInclude(x => x.PersonModel).ToList();
         }
     }
 }

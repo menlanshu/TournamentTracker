@@ -113,5 +113,11 @@ namespace TrackerLibrary.DataAccess
 
             return people;
         }
+
+        // TODO - Realize Actual logic of this part
+        public List<TeamModel> GetTeam_All()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
