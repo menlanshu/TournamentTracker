@@ -5,6 +5,7 @@ using System.Text;
 using TrackerLibrary.Models;
 using TrackerLibrary.DataAccess.TextHelpers;
 using System.Linq;
+using System.Collections.Immutable;
 
 namespace TrackerLibrary.DataAccess
 {
@@ -12,6 +13,8 @@ namespace TrackerLibrary.DataAccess
     {
         private const string PrizesFile = "PrizeModels.csv";
         private const string PeopleFile = "PersonModels.csv";
+        private const string TeamsFile = "TeamModels.csv";
+        private const string TeamMembersFile = "TeamMemberModels.csv";
 
         public PersonModel CreatePerson(PersonModel model)
         {
@@ -54,6 +57,45 @@ namespace TrackerLibrary.DataAccess
             // convert the prizes to a List<string>
             // save the List<string> to the text file
             prizes.SaveToFile(PrizesFile);
+
+            return model;
+        }
+
+        public TeamModel CreateTeam(TeamModel model)
+        {
+            // Get list of team model from text file
+            List<TeamModel> teamModels = TeamsFile.FullFilePath().LoadFile().ConvertToModel<TeamModel>();
+
+            // find the id of team models
+            int currentTeamId = (teamModels.Count == 0) ? 1 : teamModels.Max(x => x.Id) + 1;
+            model.Id = currentTeamId;
+
+            // Save team to text file, create a team model
+            teamModels.Add(model);
+
+            teamModels.SaveToFile(TeamsFile);
+
+            // Save link to team members text file
+            
+            // Get list of teammember model from text file
+            List<TeamMemberModel> teamMemberModels = TeamMembersFile.FullFilePath().LoadFile().ConvertToModel<TeamMemberModel>();
+
+            // find the id of teammember models
+            int currentTeamMemberId = (teamMemberModels.Count == 0) ? 1 : teamMemberModels.Max(x => x.Id) + 1;
+            foreach (var teamMember in model.TeamMemberModels)
+            {
+                teamMember.Id = currentTeamMemberId;
+                teamMember.PersonId = teamMember.PersonModel.Id;
+                teamMember.TeamId = currentTeamId;
+                teamMember.TeamModel = model;
+
+                currentTeamMemberId++;
+            }
+
+            // save to teammembers's file
+            model.TeamMemberModels.ToList().SaveToFile(TeamMembersFile);
+
+            // No need save person model, becasue they are got from people file
 
             return model;
         }

@@ -58,7 +58,7 @@ namespace TrackerUI
 
         private void createMemberButton_Click(object sender, EventArgs e)
         {
-            (bool Valid, string errorDesc) = ValidateForm();
+            (bool Valid, string errorDesc) = ValidateMemberGroupControl();
             if (Valid)
             {
                 PersonModel person = new PersonModel(
@@ -91,11 +91,21 @@ namespace TrackerUI
             cellphoneText.Text = "";
         }
 
+        private void InitialTeamFormControl()
+        {
+            teamNameText.Text = "";
+
+            availableTeamMembers = GlobalConfig.Connection.GetPerson_All();
+            selectedTeamMembers = null;
+
+            WireUpLists();
+        }
+
         /// <summary>
         /// Validate all input for team member text box
         /// </summary>
         /// <returns></returns>
-        private (bool validInput, string errorDesc) ValidateForm()
+        private (bool validInput, string errorDesc) ValidateMemberGroupControl()
         {
             bool output = true;
             string errorDesc = "";
@@ -162,6 +172,66 @@ namespace TrackerUI
                 WireUpLists();
 
             }
+        }
+
+        private void createTeamButton_Click(object sender, EventArgs e)
+        {
+            // Validate control status
+            // Check team member list right of not
+
+            (bool Valid, string errorDesc) = ValidateTeamFormControl();
+
+            if(Valid)
+            {
+                List<TeamMemberModel> teamMemberModels = new List<TeamMemberModel>();
+
+                // Create Current Team
+                TeamModel teamModel = new TeamModel
+                {
+                    TeamName = teamNameText.Text
+                };
+
+                // Save team to data base?
+                foreach(PersonModel member in teamMembersListBox.Items)
+                {
+                    TeamMemberModel teamMemberModel = new TeamMemberModel();
+                    teamMemberModel.PersonModel = member;
+                    teamMemberModel.TeamModel = teamModel;
+
+                    teamMemberModels.Add(teamMemberModel);
+                }
+
+                teamModel.TeamMemberModels = teamMemberModels;
+
+                GlobalConfig.Connection.CreateTeam(teamModel);
+
+                InitialTeamFormControl();
+            }
+            else
+            {
+                MessageBox.Show(errorDesc);
+            }
+
+        }
+        private (bool validInput, string errorDesc) ValidateTeamFormControl()
+        {
+            bool output = true;
+            string errorDesc = "";
+
+            if(teamNameText.Text.Length == 0)
+            {
+                output = false;
+                errorDesc += "Team name can not be empty\n";
+            }
+
+            if(teamMembersListBox.Items.Count == 0)
+            {
+                output = false;
+                errorDesc += "You cann't create a team with no member\n";
+            }
+
+            return (output, errorDesc);
+
         }
     }
 }

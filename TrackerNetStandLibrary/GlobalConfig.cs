@@ -25,14 +25,14 @@ namespace TrackerLibrary
             switch (db)
             {
                 case DataBaseType.Sql:
-                    SqlConnector sql = new SqlConnector();
-                    Connection = sql;
                     GetConnString("Tournaments", db);
+                    SqlConnector sql = new SqlConnector(ConnString);
+                    Connection = sql;
                     break;
                 case DataBaseType.TextFile:
+                    GetConnString("filePath", db);
                     TextConnector text = new TextConnector();
                     Connection = text;
-                    GetConnString("filePath", db);
                     break;
                 default:
                     break;

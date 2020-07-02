@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using SQLitePCL;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,6 +11,13 @@ namespace TrackerLibrary.DataAccess
 {
     public class SqlConnector : IDataConnection
     {
+        private SQLiteContext _SQLiteContext;
+
+        public SqlConnector(string connString)
+        {
+            _SQLiteContext = new SQLiteContext(connString);
+        }
+
         /// <summary>
         /// Save a new Person to the database
         /// </summary>
@@ -16,13 +25,10 @@ namespace TrackerLibrary.DataAccess
         /// <returns>The person information, include the unique identifier</returns>
         public PersonModel CreatePerson(PersonModel model)
         {
-            using(var context = new SQLiteContext(GlobalConfig.ConnString))
-            {
-                context.People.Add(model);
-                context.SaveChanges();
+            _SQLiteContext.People.Add(model);
+            _SQLiteContext.SaveChanges();
 
-                return model;
-            }
+            return model;
         }
 
         /// <summary>
@@ -32,21 +38,33 @@ namespace TrackerLibrary.DataAccess
         /// <returns>The prize information, including the unique identifier.</returns>
         public PrizeModel CreatePrize(PrizeModel model)
         {
-            using(var context = new SQLiteContext(GlobalConfig.ConnString))
-            {
-                context.Prizes.Add(model);
-                context.SaveChanges();
+            _SQLiteContext.Prizes.Add(model);
+            _SQLiteContext.SaveChanges();
 
-                return model;
+            return model;
+        }
+
+        // TODO - Whether there is a better to handle this kind of situation
+        public TeamModel CreateTeam(TeamModel model)
+        {
+            //context.ChangeTracker.TrackGraph(model, node =>
+            //    node.Entry.State = !node.Entry.IsKeySet ? EntityState.Added : EntityState.Unchanged);
+            //context.Add(model);
+
+            foreach (var item in model.TeamMemberModels)
+            {
+                item.PersonModel = _SQLiteContext.People.Find(item.PersonModel.Id);
             }
+
+            _SQLiteContext.Add(model);
+            _SQLiteContext.SaveChanges();
+
+            return model;
         }
 
         public List<PersonModel> GetPerson_All()
         {
-            using (var context = new SQLiteContext(GlobalConfig.ConnString))
-            {
-                return context.People.ToList();
-            }
+            return _SQLiteContext.People.ToList();
         }
     }
 }

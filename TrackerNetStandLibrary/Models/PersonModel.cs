@@ -1,11 +1,15 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using TrackerLibrary.Attributes;
 
 namespace TrackerLibrary.Models
 {
     /// <summary>
     /// Represent a person
     /// </summary>
+    [Table("People")]
     public class PersonModel
     {
         public int Id { get; set; }
@@ -27,7 +31,7 @@ namespace TrackerLibrary.Models
         public string CellphoneNumber { get; set; }
 
         // TODO - Find a better way to exclude this item from covert file
-        [DataMember]
+        [ExcludeFromTextFileAttribute]
         public string FullName
         {
             get
@@ -35,6 +39,9 @@ namespace TrackerLibrary.Models
                 return $"{FirstName} {LastName}";
             }
         }
+
+        [ExcludeFromTextFileAttribute]
+        public virtual ICollection<TeamMemberModel> TeamMemberModels { get; set; }
 
         public PersonModel()
         {

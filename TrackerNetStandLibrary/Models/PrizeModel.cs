@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Principal;
 
 namespace TrackerLibrary.Models
@@ -6,6 +7,7 @@ namespace TrackerLibrary.Models
     /// <summary>
     /// Represent a prize
     /// </summary>
+    [Table("Prizes")]
     public class PrizeModel
     {
         public int Id { get; set; }
