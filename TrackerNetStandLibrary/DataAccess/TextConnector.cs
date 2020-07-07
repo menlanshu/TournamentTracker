@@ -15,6 +15,9 @@ namespace TrackerLibrary.DataAccess
         private const string PeopleFile = "PersonModels.csv";
         private const string TeamsFile = "TeamModels.csv";
         private const string TeamMembersFile = "TeamMemberModels.csv";
+        private const string TournamentFile = "TournamentModels.csv";
+        private const string TournamentEntryFile = "TournamentEntryModels.csv";
+        private const string TournamentPrizeFile = "TournamentPrizeModels.csv";
 
         public PersonModel CreatePerson(PersonModel model)
         {
@@ -23,7 +26,7 @@ namespace TrackerLibrary.DataAccess
             List<PersonModel> people = PeopleFile.FullFilePath().LoadFile().ConvertToModel<PersonModel>();
 
             // find the id
-            int currentId = (people.Count == 0 ) ? 1 : people.Max(x => x.Id) + 1;
+            int currentId = (people.Count == 0) ? 1 : people.Max(x => x.Id) + 1;
             model.Id = currentId;
 
             // add the new record with the new id (max+1)
@@ -48,7 +51,7 @@ namespace TrackerLibrary.DataAccess
             List<PrizeModel> prizes = PrizesFile.FullFilePath().LoadFile().ConvertToModel<PrizeModel>();
 
             // find the id
-            int currentId = (prizes.Count == 0 ) ? 1 : prizes.Max(x => x.Id) + 1;
+            int currentId = (prizes.Count == 0) ? 1 : prizes.Max(x => x.Id) + 1;
             model.Id = currentId;
 
             // add the new record with the new id (max+1)
@@ -76,7 +79,7 @@ namespace TrackerLibrary.DataAccess
             teamModels.SaveToFile(TeamsFile);
 
             // Save link to team members text file
-            
+
             // Get list of teammember model from text file
             List<TeamMemberModel> teamMemberModels = TeamMembersFile.FullFilePath().LoadFile().ConvertToModel<TeamMemberModel>();
 
@@ -100,6 +103,73 @@ namespace TrackerLibrary.DataAccess
             return model;
         }
 
+        public TournamentModel CreateTounament(TournamentModel tournament)
+        {
+            // Get list of tournament model from text file
+            List<TournamentModel> tournamenetModels = TournamentFile.FullFilePath().LoadFile().ConvertToModel<TournamentModel>();
+
+            // find the id of tournament models
+            int currentTournamentId = (tournamenetModels.Count == 0) ? 1 : tournamenetModels.Max(x => x.Id) + 1;
+            tournament.Id = currentTournamentId;
+
+            // Save tournament to text file, create a tournament model
+            tournamenetModels.Add(tournament);
+
+            tournamenetModels.SaveToFile(TournamentFile);
+
+
+            // Save to Tournament Entry Models' file
+            SaveTournamentEntryModels(tournament);
+
+            // Save to Tournament Prize Models's file
+            SaveTournamentPrizeModels(tournament);
+
+            // TODO - Capture round information
+
+            return tournament;
+        }
+        private void SaveTournamentPrizeModels(TournamentModel tournament)
+        {
+            // Get list of tournamentprize model from text file
+            List<TournamentPrizeModel> tournamentPrizeModels = TournamentPrizeFile.FullFilePath().LoadFile().ConvertToModel<TournamentPrizeModel>();
+
+            // find the id of Tournament Prize models
+            int currentTournamentPrizeId = (tournamentPrizeModels.Count == 0) ? 1 : tournamentPrizeModels.Max(x => x.Id) + 1;
+            foreach (var tournamentPrize in tournament.TournamentPrizeModels)
+            {
+                tournamentPrize.Id = currentTournamentPrizeId;
+                tournamentPrize.TournamentId = tournament.Id;
+                tournamentPrize.Tournament = tournament;
+
+                currentTournamentPrizeId++;
+            }
+
+            // save to TournamentPrizeModel's file
+            tournament.TournamentPrizeModels.ToList().SaveToFile(TournamentPrizeFile);
+        }
+
+        private void SaveTournamentEntryModels(TournamentModel tournament)
+        {
+            // Save link to tournament entry text file
+
+            // Get list of tournamententry model from text file
+            List<TournamentEntryModel> tournamentEntryModels = TournamentEntryFile.FullFilePath().LoadFile().ConvertToModel<TournamentEntryModel>();
+
+            // find the id of TournamentEntry models
+            int currentTournamentEntryId = (tournamentEntryModels.Count == 0) ? 1 : tournamentEntryModels.Max(x => x.Id) + 1;
+            foreach (var tournamentEntryModel in tournament.TournamentEntryModels)
+            {
+                tournamentEntryModel.Id = currentTournamentEntryId;
+                tournamentEntryModel.TournamentId = tournament.Id;
+                tournamentEntryModel.Tournament = tournament;
+
+                currentTournamentEntryId++;
+            }
+
+            // save to TournamentEntry's file
+            tournament.TournamentEntryModels.ToList().SaveToFile(TournamentEntryFile);
+        }
+
         /// <summary>
         /// Get person list from people text file
         /// </summary>
@@ -117,7 +187,24 @@ namespace TrackerLibrary.DataAccess
         // TODO - Realize Actual logic of this part
         public List<TeamModel> GetTeam_All()
         {
-            throw new NotImplementedException();
+            List<TeamModel> teamModels = TeamsFile.FullFilePath().LoadFile().ConvertToModel<TeamModel>();
+            List<PersonModel> people = PeopleFile.FullFilePath().LoadFile().ConvertToModel<PersonModel>();
+            List<TeamMemberModel> teamMemberModels = TeamMembersFile.FullFilePath().LoadFile().ConvertToModel<TeamMemberModel>();
+
+            foreach (var item in teamModels)
+            {
+                teamMemberModels.Where(tm => tm.TeamId == item.Id)
+                    .ToList()
+                    .ForEach(tm =>
+                    {
+                        tm.PersonModel = people.Where(p => p.Id == tm.PersonId).First();
+                        tm.TeamModel = item;
+                    }
+                    );
+                item.TeamMemberModels = teamMemberModels.Where(tm => tm.TeamId == item.Id).ToList() ;
+            }
+
+            return teamModels;
         }
     }
 }

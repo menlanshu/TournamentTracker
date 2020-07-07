@@ -13,6 +13,9 @@ namespace TrackerLibrary.DataAccess
         public DbSet<PersonModel> People { get; set; }
         public DbSet<TeamModel> Teams { get; set; }
         public DbSet<TeamMemberModel> TeamMembers { get; set; }
+        public DbSet<TournamentEntryModel> TournamentEntries { get; set; }
+        public DbSet<TournamentPrizeModel> TournamentPrizes { get; set; }
+        public DbSet<TournamentModel> Tournaments { get; set; }
 
         public SQLiteContext(string connString)
         {
@@ -45,6 +48,29 @@ namespace TrackerLibrary.DataAccess
                  .HasOne(tm => tm.PersonModel)
                  .WithMany(p => p.TeamMemberModels)
                  .HasForeignKey(tm => tm.PersonId);
+
+
+            // Tournaments relates model builder
+            // Relationship between tournament and team
+            // tournament and prize
+            modelBuilder.Entity<TournamentModel>();
+
+            modelBuilder.Entity<TournamentEntryModel>()
+                .HasKey(te => new { te.TournamentId, te.TeamId });
+
+            modelBuilder.Entity<TournamentEntryModel>()
+                .Property(te => te.Id).ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<TournamentEntryModel>()
+                .HasOne(te => te.Team)
+                .WithMany(t => t.TournamentEntryModels)
+                .HasForeignKey(te => te.TeamId);
+
+            modelBuilder.Entity<TournamentEntryModel>()
+                .HasOne(te => te.Tournament)
+                .WithMany(t => t.TournamentEntryModels)
+                .HasForeignKey(te => te.TournamentId);
+
 
             //Save here as an example for many-to-many ef grammar
             //modelBuilder.Entity<TeamMemberModel>()

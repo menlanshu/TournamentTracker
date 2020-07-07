@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TrackerLibrary;
 using TrackerLibrary.Models;
+using TrackerUI.Interface;
 
 namespace TrackerUI
 {
-    public partial class CreateTournamentForm : Form
+    public partial class CreateTournamentForm : Form, ITeamRequester, IPrizeRequester
     {
         private List<TeamModel> _availableTeams = GlobalConfig.Connection.GetTeam_All();
         private List<TeamModel> _selectedTeams = new List<TeamModel>();
@@ -58,6 +59,160 @@ namespace TrackerUI
 
                 WireUpList();
             }
+        }
+
+        public void PrizeComplete(PrizeModel prizeModel)
+        {
+            if(prizeModel !=null)
+            {
+                _selctedPrizes.Add(prizeModel);
+
+                WireUpList();
+            }
+        }
+
+        public void TeamComplete(TeamModel teamModel)
+        {
+            if(teamModel != null)
+            {
+                _selectedTeams.Add(teamModel);
+
+                WireUpList();
+            }
+        }
+
+        private void createPrizeButton_Click(object sender, EventArgs e)
+        {
+            // Create prize form
+            CreatePrizeForm frm = new CreatePrizeForm(this);
+
+            // Show team form
+            frm.Show();
+        }
+
+        private void createNewTeamLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            // Create team form
+            CreateTeamForm frm = new CreateTeamForm(this);
+
+            // Show team form
+            frm.Show();
+        }
+
+        private void deleteSelectedPlayerButton_Click(object sender, EventArgs e)
+        {
+            // Get select item in team member lsit
+            TeamModel p = (TeamModel)tournamentPlayersListBox.SelectedItem;
+
+            if (p != null)
+            {
+                // Remove team from selected team list
+                _selectedTeams.Remove(p);
+
+                // Add team to available team list
+                _availableTeams.Add(p);
+
+                // Refresh control
+                WireUpList();
+
+            }
+        }
+
+        private void deleteSelectedPrizeButton_Click(object sender, EventArgs e)
+        {
+            PrizeModel p = (PrizeModel)prizesListBox.SelectedItem;
+
+            if(p != null)
+            {
+                _selctedPrizes.Remove(p);
+
+
+                WireUpList();
+            }
+        }
+
+        private void createTournamentButton_Click(object sender, EventArgs e)
+        {
+            // Validate input in this form
+            (bool validInput, string errorDesc) = ValidateTournamentFormControl();
+
+            if (validInput)
+            {
+                // Create Tournament entry
+                TournamentModel tm = new TournamentModel();
+
+                tm.TournamentName = tournamentNameText.Text;
+                // Thie statement rely on the result of ValidateTournamentFormControl
+                // Otherwise if any abnormal with entry fee text control, error happen
+                tm.EntryFee = decimal.Parse(entryFeeText.Text);
+
+                List<TournamentPrizeModel> tournamentPrizeModels = new List<TournamentPrizeModel>();
+                // Create Tournament prizes entries
+                foreach(PrizeModel prize in _selctedPrizes)
+                {
+                    TournamentPrizeModel tournamentPrizeModel = new TournamentPrizeModel();
+
+                    tournamentPrizeModel.Tournament = tm;
+                    tournamentPrizeModel.Prize = prize;
+
+                    tournamentPrizeModels.Add(tournamentPrizeModel);
+                }
+
+                List<TournamentEntryModel> tournamentEntryModels = new List<TournamentEntryModel>();
+                // Create Tournament entries
+                foreach(TeamModel team in _selectedTeams)
+                {
+                    TournamentEntryModel tournamentEntryModel = new TournamentEntryModel();
+
+                    tournamentEntryModel.Tournament = tm;
+                    tournamentEntryModel.Team = team;
+
+                    tournamentEntryModels.Add(tournamentEntryModel);
+                }
+
+                tm.TournamentPrizeModels = tournamentPrizeModels;
+                tm.TournamentEntryModels = tournamentEntryModels;
+                tm.Active = 1;
+
+                // Create our matchs
+                // Wire up matchups
+                // TODO - Implement actual logic here
+
+                // Create Tournament model
+                GlobalConfig.Connection.CreateTounament(tm);
+
+            }
+            else
+            {
+                MessageBox.Show(errorDesc);
+            }
+        }
+
+        private (bool validInput, string errorDesc) ValidateTournamentFormControl()
+        {
+            bool output = true;
+            string errorDesc = "";
+
+            if (tournamentNameText.Text.Length == 0)
+            {
+                output = false;
+                errorDesc += "Tournament name can not be empty\n";
+            }
+
+            if(!decimal.TryParse(entryFeeText.Text, out decimal decResult))
+            {
+                output = false;
+                errorDesc += "Entry fee is not right for decimal";
+            }
+
+            if (tournamentPlayersListBox.Items.Count == 0)
+            {
+                output = false;
+                errorDesc += "You must add some team to this tournament";
+            }
+
+            return (output, errorDesc);
+
         }
     }
 }

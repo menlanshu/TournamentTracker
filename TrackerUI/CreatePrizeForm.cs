@@ -10,14 +10,18 @@ using System.Windows.Forms;
 using TrackerLibrary;
 using TrackerLibrary.DataAccess;
 using TrackerLibrary.Models;
+using TrackerUI.Interface;
 
 namespace TrackerUI
 {
     public partial class CreatePrizeForm : Form
     {
-        public CreatePrizeForm()
+        private IPrizeRequester _prizeRequester;
+        public CreatePrizeForm(IPrizeRequester prizeRequester)
         {
             InitializeComponent();
+
+            _prizeRequester = prizeRequester;
         }
 
         private void createPrizeButton_Click(object sender, EventArgs e)
@@ -33,7 +37,10 @@ namespace TrackerUI
 
                 GlobalConfig.Connection.CreatePrize(prize);
 
-                InitializeTextBoxText();
+                _prizeRequester.PrizeComplete(prize);
+
+                this.Close();
+                //InitializeTextBoxText();
             }
             else
             {

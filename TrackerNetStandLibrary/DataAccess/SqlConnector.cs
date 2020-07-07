@@ -51,15 +51,23 @@ namespace TrackerLibrary.DataAccess
             //    node.Entry.State = !node.Entry.IsKeySet ? EntityState.Added : EntityState.Unchanged);
             //context.Add(model);
 
-            foreach (var item in model.TeamMemberModels)
-            {
-                item.PersonModel = _SQLiteContext.People.Find(item.PersonModel.Id);
-            }
+            //foreach (var item in model.TeamMemberModels)
+            //{
+            //    item.PersonModel = _SQLiteContext.People.Find(item.PersonModel.Id);
+            //}
 
             _SQLiteContext.Add(model);
             _SQLiteContext.SaveChanges();
 
             return model;
+        }
+
+        public TournamentModel CreateTounament(TournamentModel tournament)
+        {
+            _SQLiteContext.Add(tournament);
+            _SQLiteContext.SaveChanges();
+
+            return tournament;
         }
 
         /// <summary>

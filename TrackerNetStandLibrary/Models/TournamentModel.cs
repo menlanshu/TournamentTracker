@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using TrackerLibrary.Attributes;
 
 namespace TrackerLibrary.Models
 {
     /// <summary>
     /// Represent a tournament
     /// </summary>
+    [Table("Tournaments")]
     public class TournamentModel
     {
         public int Id { get; set; }
@@ -18,17 +21,21 @@ namespace TrackerLibrary.Models
         /// Entry fee of this Trounament
         /// </summary>
         public decimal EntryFee { get; set; }
+        public int Active { get; set; }
         /// <summary>
-        /// Teams that will participate in this Tournament
+        /// Link Prize with Tounament through tournament Prize models
         /// </summary>
-        public List<TeamModel> EnteredTeams { get; set; } = new List<TeamModel>();
+        [ExcludeFromTextFile]
+        public virtual ICollection<TournamentPrizeModel> TournamentPrizeModels { get; set; }
         /// <summary>
-        /// Prizes for winners of this Tournament
+        /// Link Team with Tournament through tournament Entry models
         /// </summary>
-        public List<PrizeModel> Prizes { get; set; } = new List<PrizeModel>();
+        [ExcludeFromTextFile]
+        public virtual ICollection<TournamentEntryModel> TournamentEntryModels { get; set; }
         /// <summary>
         /// List for all Matchups in this Tournament
         /// </summary>
-        public List<List<MatchupModel>> Rounds { get; set; } = new List<List<MatchupModel>>();
+        //[ExcludeFromTextFile]
+        //public virtual List<List<MatchupModel>> Rounds { get; set; } = new List<List<MatchupModel>>();
     }
 }

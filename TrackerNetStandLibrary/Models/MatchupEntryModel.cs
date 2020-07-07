@@ -1,10 +1,12 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TrackerLibrary.Models
 {
     /// <summary>
     /// Represent matchup detail of a matchup?
     /// </summary>
+    [Table("MatchUpEntries")]
     public class MatchupEntryModel
     {
         public int Id { get; set; }

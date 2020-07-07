@@ -20,5 +20,7 @@ namespace TrackerLibrary.Models
         public string TeamName { get; set; }
         [ExcludeFromTextFileAttribute]
         public virtual ICollection<TeamMemberModel> TeamMemberModels { get; set; }
+        [ExcludeFromTextFileAttribute]
+        public virtual ICollection<TournamentEntryModel> TournamentEntryModels { get; set; }
     }
 }
