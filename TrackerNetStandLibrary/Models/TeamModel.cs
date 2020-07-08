@@ -18,9 +18,15 @@ namespace TrackerLibrary.Models
         /// Team name of current team.
         /// </summary>
         public string TeamName { get; set; }
-        [ExcludeFromTextFileAttribute]
-        public virtual ICollection<TeamMemberModel> TeamMemberModels { get; set; }
-        [ExcludeFromTextFileAttribute]
-        public virtual ICollection<TournamentEntryModel> TournamentEntryModels { get; set; }
+        [ExcludeFromTextFile]
+        public virtual ICollection<TeamMemberModel> TeamMembers { get; set; }
+        [ExcludeFromTextFile]
+        public virtual ICollection<TournamentEntryModel> TournamentEntrys { get; set; }
+        [ExcludeFromTextFile]
+        [NotMapped]
+        public virtual ICollection<MatchupModel> Matchups { get; set; }
+        [ExcludeFromTextFile]
+        [NotMapped]
+        public virtual ICollection<MatchupEntryModel> MatchupEntrys { get; set; }
     }
 }

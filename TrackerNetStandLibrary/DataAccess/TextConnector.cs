@@ -6,6 +6,7 @@ using TrackerLibrary.Models;
 using TrackerLibrary.DataAccess.TextHelpers;
 using System.Linq;
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 
 namespace TrackerLibrary.DataAccess
 {
@@ -18,6 +19,9 @@ namespace TrackerLibrary.DataAccess
         private const string TournamentFile = "TournamentModels.csv";
         private const string TournamentEntryFile = "TournamentEntryModels.csv";
         private const string TournamentPrizeFile = "TournamentPrizeModels.csv";
+        private const string TournamentRoundFile = "TournamentRoundModels.csv";
+        private const string TournamentMatchupFile = "TournamentMatchupModels.csv";
+        private const string TournamentMatchupEntryFile = "TournamentMatchupEntryModels.csv";
 
         public PersonModel CreatePerson(PersonModel model)
         {
@@ -85,7 +89,7 @@ namespace TrackerLibrary.DataAccess
 
             // find the id of teammember models
             int currentTeamMemberId = (teamMemberModels.Count == 0) ? 1 : teamMemberModels.Max(x => x.Id) + 1;
-            foreach (var teamMember in model.TeamMemberModels)
+            foreach (var teamMember in model.TeamMembers)
             {
                 teamMember.Id = currentTeamMemberId;
                 teamMember.PersonId = teamMember.PersonModel.Id;
@@ -96,7 +100,8 @@ namespace TrackerLibrary.DataAccess
             }
 
             // save to teammembers's file
-            model.TeamMemberModels.ToList().SaveToFile(TeamMembersFile);
+            teamMemberModels.AddRange(model.TeamMembers);
+            teamMemberModels.ToList().SaveToFile(TeamMembersFile);
 
             // No need save person model, becasue they are got from people file
 
@@ -112,11 +117,8 @@ namespace TrackerLibrary.DataAccess
             int currentTournamentId = (tournamenetModels.Count == 0) ? 1 : tournamenetModels.Max(x => x.Id) + 1;
             tournament.Id = currentTournamentId;
 
-            // Save tournament to text file, create a tournament model
+            // Add current tournament model to tournament list
             tournamenetModels.Add(tournament);
-
-            tournamenetModels.SaveToFile(TournamentFile);
-
 
             // Save to Tournament Entry Models' file
             SaveTournamentEntryModels(tournament);
@@ -124,10 +126,98 @@ namespace TrackerLibrary.DataAccess
             // Save to Tournament Prize Models's file
             SaveTournamentPrizeModels(tournament);
 
-            // TODO - Capture round information
+            // Capture round information
+            SaveTournamentRounds(tournament);
+
+            // Save tornament to file
+            tournamenetModels.SaveToFile(TournamentFile);
 
             return tournament;
         }
+
+        private void SaveTournamentRounds(TournamentModel tournament)
+        {
+            // Get List from Tournament Rounds file
+            List<TournamentRoundModel> tournamentRounds = TournamentRoundFile.FullFilePath().LoadFile().ConvertToModel<TournamentRoundModel>();
+
+            // Get the max id
+            // Generate id for current new record
+            int currentRoundId = (tournamentRounds.Count == 0) ? 1 : tournamentRounds.Max(x => x.Id) + 1;
+
+            // Loop each round
+            foreach (TournamentRoundModel round in tournament.Rounds)
+            {
+                round.Id = currentRoundId;
+                round.TournamentId = tournament.Id;
+                round.Tournament = tournament;
+
+                // Add current round to list
+                tournamentRounds.Add(round);
+
+                // Save all math ups belong to current round to database
+                SaveRoundMatchups(round);
+
+                currentRoundId++;
+            }
+
+            // Save current round to text file
+            tournamentRounds.SaveToFile(TournamentRoundFile);
+        }
+
+        private void SaveRoundMatchups(TournamentRoundModel round)
+        {
+            // Get All match up records from text file
+            List<MatchupModel> matchups = TournamentMatchupFile.FullFilePath().LoadFile().ConvertToModel<MatchupModel>();
+
+            // Get current match up id
+            int currMatchupId = (matchups.Count == 0) ? 1 : matchups.Max(x => x.Id) + 1;
+
+            // Loop each match up
+            foreach (MatchupModel matchup in round.MatchUps)
+            {
+                // Assign value that need to be assigned in mathup model
+                matchup.Id = currMatchupId;
+                matchup.WinnerId = matchup.Winner?.Id;
+                matchup.RoundId = matchup.Round.Id;
+
+                // Add current mathup model into match up list
+                matchups.Add(matchup);
+
+                // Save all match up entries to file
+                SaveMatchupEntrys(matchup);
+
+                currMatchupId++;
+            }
+
+            // Save to matchup models's file
+            matchups.SaveToFile(TournamentMatchupFile);
+        }
+
+        private void SaveMatchupEntrys(MatchupModel matchup)
+        {
+            // Get all match up entries from text file
+            List<MatchupEntryModel> matchupEntries = TournamentMatchupEntryFile.FullFilePath().LoadFile().ConvertToModel<MatchupEntryModel>();
+
+            // Get current match up entry id
+            int currMatchupEntryId = (matchupEntries.Count == 0) ? 1 : matchupEntries.Max(x => x.Id) + 1;
+
+            // Loop each match up entry in matchup
+            foreach (MatchupEntryModel matchupEntry in matchup.Entries)
+            {
+                matchupEntry.Id = currMatchupEntryId;
+                matchupEntry.MatchupId = matchup.Id;
+                matchupEntry.TeamCompetingId = matchupEntry.TeamCompeting?.Id;
+                matchupEntry.ParentMatchupId = matchupEntry.ParentMatchup?.Id;
+
+                matchupEntries.Add(matchupEntry);
+
+                currMatchupEntryId++;
+            }
+
+
+            matchupEntries.SaveToFile(TournamentMatchupEntryFile);
+        }
+
         private void SaveTournamentPrizeModels(TournamentModel tournament)
         {
             // Get list of tournamentprize model from text file
@@ -145,7 +235,8 @@ namespace TrackerLibrary.DataAccess
             }
 
             // save to TournamentPrizeModel's file
-            tournament.TournamentPrizeModels.ToList().SaveToFile(TournamentPrizeFile);
+            tournamentPrizeModels.AddRange(tournament.TournamentPrizeModels);
+            tournamentPrizeModels.ToList().SaveToFile(TournamentPrizeFile);
         }
 
         private void SaveTournamentEntryModels(TournamentModel tournament)
@@ -167,7 +258,8 @@ namespace TrackerLibrary.DataAccess
             }
 
             // save to TournamentEntry's file
-            tournament.TournamentEntryModels.ToList().SaveToFile(TournamentEntryFile);
+            tournamentEntryModels.AddRange(tournament.TournamentEntryModels);
+            tournamentEntryModels.ToList().SaveToFile(TournamentEntryFile);
         }
 
         /// <summary>
@@ -184,7 +276,6 @@ namespace TrackerLibrary.DataAccess
             return people;
         }
 
-        // TODO - Realize Actual logic of this part
         public List<TeamModel> GetTeam_All()
         {
             List<TeamModel> teamModels = TeamsFile.FullFilePath().LoadFile().ConvertToModel<TeamModel>();
@@ -201,7 +292,7 @@ namespace TrackerLibrary.DataAccess
                         tm.TeamModel = item;
                     }
                     );
-                item.TeamMemberModels = teamMemberModels.Where(tm => tm.TeamId == item.Id).ToList() ;
+                item.TeamMembers = teamMemberModels.Where(tm => tm.TeamId == item.Id).ToList() ;
             }
 
             return teamModels;

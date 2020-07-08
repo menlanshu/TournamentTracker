@@ -33,6 +33,9 @@ namespace TrackerLibrary.DataAccess
             modelBuilder.Entity<PersonModel>();
             modelBuilder.Entity<TeamModel>();
 
+
+            // Team member many to many relationship
+            // Teams <=> Person
             modelBuilder.Entity<TeamMemberModel>()
                 .HasKey(tm => new { tm.TeamId, tm.PersonId });
 
@@ -41,7 +44,7 @@ namespace TrackerLibrary.DataAccess
 
             modelBuilder.Entity<TeamMemberModel>()
                 .HasOne(tm => tm.TeamModel)
-                .WithMany(t => t.TeamMemberModels)
+                .WithMany(t => t.TeamMembers)
                 .HasForeignKey(tm => tm.TeamId);
 
             modelBuilder.Entity<TeamMemberModel>()
@@ -55,6 +58,13 @@ namespace TrackerLibrary.DataAccess
             // tournament and prize
             modelBuilder.Entity<TournamentModel>();
 
+            modelBuilder.Entity<TournamentModel>()
+                .HasMany(tm => tm.Rounds)
+                .WithOne(r => r.Tournament)
+                .HasForeignKey(r => r.TournamentId);
+
+
+            // Tournament and team, prize many to many relationship
             modelBuilder.Entity<TournamentEntryModel>()
                 .HasKey(te => new { te.TournamentId, te.TeamId });
 
@@ -63,7 +73,7 @@ namespace TrackerLibrary.DataAccess
 
             modelBuilder.Entity<TournamentEntryModel>()
                 .HasOne(te => te.Team)
-                .WithMany(t => t.TournamentEntryModels)
+                .WithMany(t => t.TournamentEntrys)
                 .HasForeignKey(te => te.TeamId);
 
             modelBuilder.Entity<TournamentEntryModel>()
@@ -72,16 +82,38 @@ namespace TrackerLibrary.DataAccess
                 .HasForeignKey(te => te.TournamentId);
 
 
-            //Save here as an example for many-to-many ef grammar
-            //modelBuilder.Entity<TeamMemberModel>()
-            //    .HasOne<TeamModel>(tm => tm.TeamModel)
-            //    .WithMany(t => t.TeamMemberModels)
-            //    .HasForeignKey(tm => tm.TeamId);
 
-            //modelBuilder.Entity<TeamMemberModel>()
-            //     .HasOne<PersonModel>(tm => tm.PersonModel)
-            //     .WithMany(p => p.TeamMemberModels)
-            //     .HasForeignKey(tm => tm.TeamId);
+            // Each match up has many match up entries
+            // And each match up has a parent match up
+            // Parant match up is foreign key
+            modelBuilder.Entity<MatchupModel>()
+                .HasMany(m => m.Entries)
+                .WithOne(e => e.Matchup)
+                .HasForeignKey(e => e.MatchupId);
+
+            modelBuilder.Entity<MatchupModel>()
+                .HasOne(m => m.Winner)
+                .WithMany(t => t.Matchups)
+                .HasForeignKey(m => m.WinnerId).IsRequired(false);
+
+
+            // Round model
+            modelBuilder.Entity<TournamentRoundModel>()
+                .HasMany(tr => tr.MatchUps)
+                .WithOne(m => m.Round)
+                .HasForeignKey(m => m.RoundId);
+
+
+            // Match up entry model
+            modelBuilder.Entity<MatchupEntryModel>()
+                .HasOne(me => me.ParentMatchup)
+                .WithMany()
+                .HasForeignKey(e => e.ParentMatchupId).IsRequired(false);
+
+            modelBuilder.Entity<MatchupEntryModel>()
+                .HasOne(me => me.TeamCompeting)
+                .WithMany(m => m.MatchupEntrys)
+                .HasForeignKey(me => me.TeamCompetingId);
 
         }
     }

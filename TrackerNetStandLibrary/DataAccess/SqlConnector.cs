@@ -9,7 +9,7 @@ using TrackerLibrary.Models;
 
 namespace TrackerLibrary.DataAccess
 {
-    public class SqlConnector : IDataConnection
+    public class SqlConnector : IDataConnection, IDisposable
     {
         private SQLiteContext _SQLiteContext;
 
@@ -44,13 +44,13 @@ namespace TrackerLibrary.DataAccess
             return model;
         }
 
-        // TODO - Whether there is a better to handle this kind of situation
         public TeamModel CreateTeam(TeamModel model)
         {
             //context.ChangeTracker.TrackGraph(model, node =>
             //    node.Entry.State = !node.Entry.IsKeySet ? EntityState.Added : EntityState.Unchanged);
             //context.Add(model);
 
+            //Mark this part for use context as a global variable
             //foreach (var item in model.TeamMemberModels)
             //{
             //    item.PersonModel = _SQLiteContext.People.Find(item.PersonModel.Id);
@@ -70,6 +70,11 @@ namespace TrackerLibrary.DataAccess
             return tournament;
         }
 
+        public void Dispose()
+        {
+            _SQLiteContext.Dispose();
+        }
+
         /// <summary>
         /// Get all persons from DB
         /// </summary>
@@ -81,7 +86,7 @@ namespace TrackerLibrary.DataAccess
 
         public List<TeamModel> GetTeam_All()
         {
-            return _SQLiteContext.Teams.Include(p => p.TeamMemberModels).ThenInclude(x => x.PersonModel).ToList();
+            return _SQLiteContext.Teams.Include(p => p.TeamMembers).ThenInclude(x => x.PersonModel).ToList();
         }
     }
 }

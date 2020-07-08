@@ -205,7 +205,7 @@ namespace TrackerUI
                     teamMemberModels.Add(teamMemberModel);
                 }
 
-                teamModel.TeamMemberModels = teamMemberModels;
+                teamModel.TeamMembers = teamMemberModels;
 
                 GlobalConfig.Connection.CreateTeam(teamModel);
 

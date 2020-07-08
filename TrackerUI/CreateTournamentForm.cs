@@ -176,7 +176,9 @@ namespace TrackerUI
 
                 // Create our matchs
                 // Wire up matchups
-                // TODO - Implement actual logic here
+
+                // Create Round for current Tournament
+                TournamentLogic.CreateRound(tm);
 
                 // Create Tournament model
                 GlobalConfig.Connection.CreateTounament(tm);

@@ -30,7 +30,6 @@ namespace TrackerLibrary.Models
         /// </summary>
         public string CellphoneNumber { get; set; }
 
-        // TODO - Find a better way to exclude this item from covert file
         [ExcludeFromTextFileAttribute]
         public string FullName
         {

@@ -35,7 +35,7 @@ namespace TrackerLibrary.Models
         /// <summary>
         /// List for all Matchups in this Tournament
         /// </summary>
-        //[ExcludeFromTextFile]
-        //public virtual List<List<MatchupModel>> Rounds { get; set; } = new List<List<MatchupModel>>();
+        [ExcludeFromTextFile]
+        public virtual List<TournamentRoundModel> Rounds { get; set; } = new List<TournamentRoundModel>();
     }
 }

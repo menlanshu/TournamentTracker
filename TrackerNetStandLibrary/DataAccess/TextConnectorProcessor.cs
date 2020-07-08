@@ -66,6 +66,18 @@ namespace TrackerLibrary.DataAccess.TextHelpers
                     {
                         propInfo.SetValue(temp, decimal.Parse(cols[currentCount]));
                     }
+                    else if (propInfo.PropertyType == typeof(Nullable<int>))
+                    {
+                        propInfo.SetValue(temp, int.TryParse(cols[currentCount], out int intValue) ? int.Parse(cols[currentCount]) : (int?)null);
+                    }
+                    else if (propInfo.PropertyType == typeof(Nullable<double>))
+                    {
+                        propInfo.SetValue(temp, double.TryParse(cols[currentCount], out double intValue) ? double.Parse(cols[currentCount]) : (double?)null);
+                    }
+                    else if (propInfo.PropertyType == typeof(Nullable<decimal>))
+                    {
+                        propInfo.SetValue(temp, decimal.TryParse(cols[currentCount], out decimal intValue) ? decimal.Parse(cols[currentCount]) : (decimal?)null);
+                    }
                     else
                     {
                         propInfo.SetValue(temp, cols[currentCount]);
