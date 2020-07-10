@@ -292,10 +292,87 @@ namespace TrackerLibrary.DataAccess
                         tm.TeamModel = item;
                     }
                     );
-                item.TeamMembers = teamMemberModels.Where(tm => tm.TeamId == item.Id).ToList() ;
+                item.TeamMembers = teamMemberModels.Where(tm => tm.TeamId == item.Id).ToList();
             }
 
             return teamModels;
+        }
+
+        public List<TournamentModel> GetTournament_All()
+        {
+            // TODO - Implement actual logic here
+
+            // Get list of Tournament
+            List<TournamentModel> tournaments = TournamentFile.FullFilePath().LoadFile().ConvertToModel<TournamentModel>();
+            // Get list of Rounds
+            List<TournamentRoundModel> tournamentRounds = TournamentRoundFile.FullFilePath().LoadFile().ConvertToModel<TournamentRoundModel>();
+            // Get list of Matchup
+            List<MatchupModel> matchups = TournamentMatchupFile.FullFilePath().LoadFile().ConvertToModel<MatchupModel>();
+            // Get list of Matchup Entries
+            List<MatchupEntryModel> matchupEntries = TournamentMatchupEntryFile.FullFilePath().LoadFile().ConvertToModel<MatchupEntryModel>();
+
+            // Get team list
+            List<TeamModel> teams = TeamsFile.FullFilePath().LoadFile().ConvertToModel<TeamModel>();
+            List<TournamentEntryModel> tournamentEntries = TournamentEntryFile.FullFilePath().LoadFile().ConvertToModel<TournamentEntryModel>();
+            // Get prize list
+            List<PrizeModel> prizes = PrizesFile.FullFilePath().LoadFile().ConvertToModel<PrizeModel>();
+            List<TournamentPrizeModel> tournamentPrizes = TournamentPrizeFile.FullFilePath().LoadFile().ConvertToModel<TournamentPrizeModel>();
+
+            // Handle match up entries model
+            matchupEntries.ForEach(me =>
+            {
+                me.Matchup = matchups.Where(m => m.Id == me.MatchupId).FirstOrDefault();
+                me.ParentMatchup = matchups.Where(m => m.Id == me.ParentMatchupId).FirstOrDefault();
+                me.TeamCompeting = teams.Where(t => t.Id == me.TeamCompetingId).FirstOrDefault();
+            });
+
+            // Assign Mathupentries to matchup model
+            matchups.ForEach(m =>
+                {
+                    m.Winner = teams.Where(t => t.Id == m.WinnerId).FirstOrDefault();
+                    m.Round = tournamentRounds.Where(tr => tr.Id == m.RoundId).FirstOrDefault();
+                    m.Entries = matchupEntries.Where(me => me.MatchupId == m.Id).ToList();
+                }
+            );
+
+            // Assign round model value
+            tournamentRounds.ForEach(tr =>
+            {
+                tr.MatchUps = matchups.Where(me => me.RoundId == tr.Id).ToList();
+                tr.Tournament = tournaments.Where(t => t.Id == tr.TournamentId).FirstOrDefault();
+            });
+
+            // Assign tournament entries
+            tournamentEntries.ForEach(te =>
+            {
+                te.Tournament = tournaments.Where(t => t.Id == te.TournamentId).FirstOrDefault();
+                te.Team = teams.Where(t => t.Id == te.TeamId).FirstOrDefault();
+            });
+
+            // Assign tournament prizes
+            tournamentPrizes.ForEach(tp =>
+            {
+                tp.Prize = prizes.Where(p => p.Id == tp.PrizeId).FirstOrDefault();
+                tp.Tournament = tournaments.Where(t => t.Id == tp.TournamentId).FirstOrDefault();
+            });
+
+            // Assign tournament model
+            tournaments.ForEach(t =>
+            {
+               t.TournamentEntryModels = tournamentEntries
+                                            .Where(te => te.TournamentId == t.Id)
+                                            .ToList();
+
+               t.TournamentPrizeModels = tournamentPrizes
+                                            .Where(tp => tp.TournamentId == t.Id)
+                                            .ToList();
+
+               t.Rounds = tournamentRounds
+                            .Where(tr => tr.TournamentId == t.Id)
+                            .ToList();
+            });
+
+            return tournaments;
         }
     }
 }

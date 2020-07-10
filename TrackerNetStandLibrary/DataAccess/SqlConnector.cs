@@ -88,5 +88,10 @@ namespace TrackerLibrary.DataAccess
         {
             return _SQLiteContext.Teams.Include(p => p.TeamMembers).ThenInclude(x => x.PersonModel).ToList();
         }
+
+        public List<TournamentModel> GetTournament_All()
+        {
+            return _SQLiteContext.Tournaments.ToList();
+        }
     }
 }
