@@ -374,5 +374,46 @@ namespace TrackerLibrary.DataAccess
 
             return tournaments;
         }
+
+        public void UpdateTournament(TournamentModel tournament)
+        {
+            // Get list of Matchup
+            List<MatchupModel> matchups = TournamentMatchupFile.FullFilePath().LoadFile().ConvertToModel<MatchupModel>();
+            // Get list of Matchup Entries
+            List<MatchupEntryModel> matchupEntries = TournamentMatchupEntryFile.FullFilePath().LoadFile().ConvertToModel<MatchupEntryModel>();
+
+            List<MatchupModel> tournamentMatchups = new List<MatchupModel>();
+
+            tournament.Rounds.ForEach(r => tournamentMatchups.AddRange(r.MatchUps));
+
+
+            List<MatchupEntryModel> tournamentMatchupEntries = new List<MatchupEntryModel>();
+
+            tournament.Rounds.ForEach(r =>
+                r.MatchUps.ForEach(m => tournamentMatchupEntries.AddRange(m.Entries)));
+
+            // update data in original list
+            tournamentMatchups.ForEach(tm => 
+                { 
+                    MatchupModel currentMatchup = matchups.Where(m => m.Id == tm.Id).FirstOrDefault();
+                    currentMatchup.Winner = tm.Winner;
+                    currentMatchup.WinnerId = tm.Winner?.Id;
+                });
+
+
+            tournamentMatchupEntries.ForEach(tme =>
+                {
+                    MatchupEntryModel currentMatchupEntry = matchupEntries.Where(me => me.Id == tme.Id).FirstOrDefault();
+                    currentMatchupEntry.ParentMatchup = tme.ParentMatchup;
+                    currentMatchupEntry.ParentMatchupId = tme.ParentMatchup?.Id;
+
+                    currentMatchupEntry.Score = tme.Score;
+                    currentMatchupEntry.TeamCompeting = tme.TeamCompeting;
+                    currentMatchupEntry.TeamCompetingId = tme.TeamCompeting?.Id;
+                });
+
+            matchups.SaveToFile(TournamentEntryFile);
+            matchupEntries.SaveToFile(TournamentMatchupEntryFile);
+        }
     }
 }

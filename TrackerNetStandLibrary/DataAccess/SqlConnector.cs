@@ -91,7 +91,19 @@ namespace TrackerLibrary.DataAccess
 
         public List<TournamentModel> GetTournament_All()
         {
-            return _SQLiteContext.Tournaments.ToList();
+            return _SQLiteContext.Tournaments
+                .Include(t => t.TournamentEntryModels)
+                .Include(t => t.TournamentPrizeModels)
+                .Include(t => t.Rounds)
+                .ThenInclude(r => r.MatchUps)
+                .ThenInclude(m => m.Entries).ThenInclude(me => me.TeamCompeting)
+                .ToList();
+        }
+
+        public void UpdateTournament(TournamentModel tournament)
+        {
+            _SQLiteContext.Update(tournament);
+            _SQLiteContext.SaveChanges();
         }
     }
 }

@@ -31,5 +31,23 @@ namespace TrackerLibrary.Models
         /// </summary>
         [ExcludeFromTextFile]
         public virtual List<MatchupEntryModel> Entries { get; set; } = new List<MatchupEntryModel>();
+        [ExcludeFromTextFile]
+        [NotMapped]
+        public string DisplayName {
+            get
+            {
+                string name = "";
+                if (Entries.Count == 1)
+                {
+                    name = $"{Entries[0].TeamCompeting?.TeamName}-vs-<Bye>";
+                }else if(Entries.Count == 2)
+                {
+                    name = Entries[0].TeamCompeting == null ? "Not Deterimined" : Entries[0].TeamCompeting?.TeamName;
+                    name = name + "-vs-" + (Entries[1].TeamCompeting == null ? "Not Deterimined" : Entries[1].TeamCompeting?.TeamName);
+                }
+
+                return name;
+            } 
+        }
     }
 }
