@@ -40,15 +40,15 @@ namespace TrackerLibrary
 
             MatchupModel currMatchup = new MatchupModel();
 
-            while(round <= rounds)
+            while (round <= rounds)
             {
                 currMatchup.Round = currRound;
 
-                foreach(MatchupModel match in previousRound.MatchUps)
+                foreach (MatchupModel match in previousRound.MatchUps)
                 {
                     currMatchup.Entries.Add(new MatchupEntryModel { ParentMatchup = match, Matchup = currMatchup });
-                    
-                    if(currMatchup.Entries.Count > 1)
+
+                    if (currMatchup.Entries.Count > 1)
                     {
                         currRound.MatchUps.Add(currMatchup);
 
@@ -75,11 +75,11 @@ namespace TrackerLibrary
             MatchupModel curr = new MatchupModel();
             curr.Round = output;
 
-            foreach(TeamModel team in teams)
+            foreach (TeamModel team in teams)
             {
                 curr.Entries.Add(new MatchupEntryModel { TeamCompeting = team, Matchup = curr });
 
-                if(byes > 0 || curr.Entries.Count > 1)
+                if (byes > 0 || curr.Entries.Count > 1)
                 {
                     curr.RoundId = 1;
 
@@ -87,13 +87,59 @@ namespace TrackerLibrary
                     curr = new MatchupModel();
                     curr.Round = output;
 
-                    byes = byes > 0 ? byes-1 : byes;
+                    byes = byes > 0 ? byes - 1 : byes;
                 }
             }
 
             output.RoundNumber = 1;
             output.MatchUps = matchups;
             return output;
+        }
+
+        public static void UpdateMatchup(TournamentModel tournament, MatchupModel currMatchup)
+        {
+            // Assign actual winner of current matchup
+            SetMatchupWinner(currMatchup);
+
+            // Update child matchup TeamCompeting object after matchup finish
+            UpdateMatchupChildMatchup(tournament, currMatchup);
+        }
+
+        private static void UpdateMatchupChildMatchup(TournamentModel tournament, MatchupModel matchup)
+        {
+            foreach (TournamentRoundModel round in tournament.Rounds)
+            {
+                round.MatchUps.ForEach(m =>
+                {
+                    MatchupEntryModel currEntry = m.Entries
+                    .Where(e => e.ParentMatchupId == matchup.Id)
+                    .FirstOrDefault();
+                    if(currEntry != null) currEntry.TeamCompeting = matchup.Winner;
+                });
+            }
+        }
+        private static void SetMatchupWinner(MatchupModel currMatchup)
+        {
+            if (currMatchup.Entries.Count == 1)
+            {
+                currMatchup.Winner = currMatchup.Entries[0].TeamCompeting;
+            }
+            else
+            {
+                // Check who is the winner
+                if (currMatchup.Entries[0].Score > currMatchup.Entries[1].Score)
+                {
+                    currMatchup.Winner = currMatchup.Entries[0].TeamCompeting;
+                }
+                else if (currMatchup.Entries[0].Score < currMatchup.Entries[1].Score)
+                {
+                    currMatchup.Winner = currMatchup.Entries[1].TeamCompeting;
+                }
+                else
+                {
+                    throw new Exception("Matchup winner logic doestn't support tie score.");
+                }
+            }
         }
 
         private static int NumberOfByes(int rounds, int numberOfTeams)
@@ -116,7 +162,7 @@ namespace TrackerLibrary
             int output = 1;
             int multiply = 2;
 
-            while(teamCount > multiply)
+            while (teamCount > multiply)
             {
                 multiply *= 2;
                 output++;

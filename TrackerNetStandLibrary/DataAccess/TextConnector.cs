@@ -23,7 +23,7 @@ namespace TrackerLibrary.DataAccess
         private const string TournamentMatchupFile = "TournamentMatchupModels.csv";
         private const string TournamentMatchupEntryFile = "TournamentMatchupEntryModels.csv";
 
-        public PersonModel CreatePerson(PersonModel model)
+        public void CreatePerson(PersonModel model)
         {
             // load text file
             // convert test to a List<PrizeModel>
@@ -40,7 +40,6 @@ namespace TrackerLibrary.DataAccess
             // save the List<string> to the text file
             people.SaveToFile(PeopleFile);
 
-            return model;
         }
 
         /// <summary>
@@ -48,7 +47,7 @@ namespace TrackerLibrary.DataAccess
         /// </summary>
         /// <param name="model">The prize information</param>
         /// <returns>The prize infomation, with unique identifier</returns>
-        public PrizeModel CreatePrize(PrizeModel model)
+        public void CreatePrize(PrizeModel model)
         {
             // load text file
             // convert test to a List<PrizeModel>
@@ -65,10 +64,9 @@ namespace TrackerLibrary.DataAccess
             // save the List<string> to the text file
             prizes.SaveToFile(PrizesFile);
 
-            return model;
         }
 
-        public TeamModel CreateTeam(TeamModel model)
+        public void CreateTeam(TeamModel model)
         {
             // Get list of team model from text file
             List<TeamModel> teamModels = TeamsFile.FullFilePath().LoadFile().ConvertToModel<TeamModel>();
@@ -105,10 +103,9 @@ namespace TrackerLibrary.DataAccess
 
             // No need save person model, becasue they are got from people file
 
-            return model;
         }
 
-        public TournamentModel CreateTounament(TournamentModel tournament)
+        public void CreateTounament(TournamentModel tournament)
         {
             // Get list of tournament model from text file
             List<TournamentModel> tournamenetModels = TournamentFile.FullFilePath().LoadFile().ConvertToModel<TournamentModel>();
@@ -132,7 +129,6 @@ namespace TrackerLibrary.DataAccess
             // Save tornament to file
             tournamenetModels.SaveToFile(TournamentFile);
 
-            return tournament;
         }
 
         private void SaveTournamentRounds(TournamentModel tournament)

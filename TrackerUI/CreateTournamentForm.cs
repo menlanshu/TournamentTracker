@@ -19,9 +19,13 @@ namespace TrackerUI
         private List<TeamModel> _selectedTeams = new List<TeamModel>();
         private List<PrizeModel> _selctedPrizes = new List<PrizeModel>();
 
-        public CreateTournamentForm()
+        private ICreateTournamentRequester _createTournamentRequester;
+
+        public CreateTournamentForm(ICreateTournamentRequester createTournamentRequester)
         {
             InitializeComponent();
+
+            _createTournamentRequester = createTournamentRequester;
 
             WireUpList();
         }
@@ -183,6 +187,12 @@ namespace TrackerUI
                 // Create Tournament model
                 GlobalConfig.Connection.CreateTounament(tm);
 
+
+                TournamentViewerForm frm = new TournamentViewerForm(tm);
+                frm.Show();
+
+                _createTournamentRequester.CreateTournamentComplete(tm);
+                this.Close();
             }
             else
             {

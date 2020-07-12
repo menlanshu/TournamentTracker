@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TrackerLibrary;
 using TrackerLibrary.Models;
+using TrackerUI.Interface;
 
 namespace TrackerUI
 {
-    public partial class TournamentDashboardForm : Form
+    public partial class TournamentDashboardForm : Form, ICreateTournamentRequester
     {
         List<TournamentModel> _tournamentList = GlobalConfig.Connection.GetTournament_All();
         public TournamentDashboardForm()
@@ -32,7 +33,7 @@ namespace TrackerUI
 
         private void createTournamentButton_Click(object sender, EventArgs e)
         {
-            CreateTournamentForm frm = new CreateTournamentForm();
+            CreateTournamentForm frm = new CreateTournamentForm(this);
             frm.Show();
         }
 
@@ -48,6 +49,16 @@ namespace TrackerUI
             {
                 TournamentViewerForm frm = new TournamentViewerForm(currTournament);
                 frm.Show();
+            }
+        }
+
+        public void CreateTournamentComplete(TournamentModel tournament)
+        {
+            if(!_tournamentList.Contains(tournament))
+            {
+                _tournamentList.Add(tournament);
+
+                WireUpLists();
             }
         }
     }

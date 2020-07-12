@@ -23,12 +23,11 @@ namespace TrackerLibrary.DataAccess
         /// </summary>
         /// <param name="model">A new person information</param>
         /// <returns>The person information, include the unique identifier</returns>
-        public PersonModel CreatePerson(PersonModel model)
+        public void CreatePerson(PersonModel model)
         {
             _SQLiteContext.People.Add(model);
             _SQLiteContext.SaveChanges();
 
-            return model;
         }
 
         /// <summary>
@@ -36,15 +35,14 @@ namespace TrackerLibrary.DataAccess
         /// </summary>
         /// <param name="model">The prize information.</param>
         /// <returns>The prize information, including the unique identifier.</returns>
-        public PrizeModel CreatePrize(PrizeModel model)
+        public void CreatePrize(PrizeModel model)
         {
             _SQLiteContext.Prizes.Add(model);
             _SQLiteContext.SaveChanges();
 
-            return model;
         }
 
-        public TeamModel CreateTeam(TeamModel model)
+        public void CreateTeam(TeamModel model)
         {
             //context.ChangeTracker.TrackGraph(model, node =>
             //    node.Entry.State = !node.Entry.IsKeySet ? EntityState.Added : EntityState.Unchanged);
@@ -59,15 +57,13 @@ namespace TrackerLibrary.DataAccess
             _SQLiteContext.Add(model);
             _SQLiteContext.SaveChanges();
 
-            return model;
         }
 
-        public TournamentModel CreateTounament(TournamentModel tournament)
+        public void CreateTounament(TournamentModel tournament)
         {
             _SQLiteContext.Add(tournament);
             _SQLiteContext.SaveChanges();
 
-            return tournament;
         }
 
         public void Dispose()

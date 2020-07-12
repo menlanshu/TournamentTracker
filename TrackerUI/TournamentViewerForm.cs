@@ -122,26 +122,23 @@ namespace TrackerUI
                 if (currMatchup.Entries.Count == 1)
                 {
                     currMatchup.Entries[0].Score = teamOneScore;
-                    currMatchup.Winner = currMatchup.Entries[0].TeamCompeting;
                 }
                 else
                 {
                     currMatchup.Entries[0].Score = teamOneScore;
                     currMatchup.Entries[1].Score = teamTwoScore;
-
-                    // Check who is the winner
-                    if (teamOneScore > teamTwoScore)
-                    {
-                        currMatchup.Winner = currMatchup.Entries[0].TeamCompeting;
-                    }
-                    else
-                    {
-                        currMatchup.Winner = currMatchup.Entries[1].TeamCompeting;
-                    }
                 }
-                
-                // Update team completing
-                UpdateMatchupWinner(currMatchup);
+
+                try
+                {
+                    TournamentLogic.UpdateMatchup(_tournament, currMatchup); ;
+
+                }
+                catch (Exception  err)
+                {
+                    MessageBox.Show($"Errod happen when update current Matchup: {err.Message}");
+                    return;
+                }
 
                 GlobalConfig.Connection.UpdateTournament(_tournament);
 
@@ -154,19 +151,6 @@ namespace TrackerUI
             }
         }
 
-        private void UpdateMatchupWinner(MatchupModel matchup)
-        {
-            foreach (TournamentRoundModel round in _rounds)
-            {
-                round.MatchUps.ForEach(m =>
-                {
-                    MatchupEntryModel currEntry = m.Entries
-                    .Where(e => e.ParentMatchupId == matchup.Id)
-                    .FirstOrDefault();
-                    if(currEntry != null) currEntry.TeamCompeting = matchup.Winner;
-                });
-            }
-        }
 
         private (bool isValid, string errorDesc, int teamOneScore, int teamTwoScore) ValidateScoreInput()
         {
@@ -200,7 +184,14 @@ namespace TrackerUI
                 if (!int.TryParse(teamTwoScoreText.Text, out teamTwoScore))
                 {
                     isValid = false;
-                    errorDesc += "Team Two Score is not an available number";
+                    errorDesc += "Team Two Score is not an available number\n";
+                }
+
+                if (teamOneScore == teamTwoScore)
+                {
+                    isValid = false;
+                    errorDesc += "Two teams do not support tie score!\n";
+
                 }
             }
 
