@@ -187,6 +187,7 @@ namespace TrackerUI
                 // Create Tournament model
                 GlobalConfig.Connection.CreateTounament(tm);
 
+                tm.Rounds[0].SendMailForCurrentRound();
 
                 TournamentViewerForm frm = new TournamentViewerForm(tm);
                 frm.Show();

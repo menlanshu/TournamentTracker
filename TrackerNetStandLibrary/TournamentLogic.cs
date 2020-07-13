@@ -10,11 +10,21 @@ namespace TrackerLibrary
 {
     public static class TournamentLogic
     {
-        // Order our list randomly
-        // Check if it is big enough - if not, add in byes // 2*2*2*2 teams
-        // Create our first round of matchups
-        // Create every round afer that - 8 Matchups - 4 Matchups - 2 Matchups - 1 Matchups
+        private static TournamentRoundModel CheckCurrentRound(TournamentModel tournament)
+        {
+            TournamentRoundModel currRound = null;
 
+            foreach (TournamentRoundModel round in tournament.Rounds)
+            {
+                if (round.MatchUps.Any(m => m.Winner == null))
+                {
+                    currRound = round;
+                    break;
+                }
+            }
+
+            return currRound;
+        }
         public static void CreateRound(TournamentModel model)
         {
             List<TeamModel> randomizeTeams = RandomizeTeamOrder(model.TournamentEntryModels.Select(te => te.Team).ToList());
@@ -30,7 +40,6 @@ namespace TrackerLibrary
 
             CreateOtherRounds(model, rounds);
         }
-
         private static void CreateOtherRounds(TournamentModel model, int rounds)
         {
             int round = 2;
@@ -67,7 +76,6 @@ namespace TrackerLibrary
             }
 
         }
-
         private static TournamentRoundModel CreateFirstRound(int byes, List<TeamModel> teams)
         {
             TournamentRoundModel output = new TournamentRoundModel();
@@ -95,14 +103,66 @@ namespace TrackerLibrary
             output.MatchUps = matchups;
             return output;
         }
-
         public static void UpdateMatchup(TournamentModel tournament, MatchupModel currMatchup)
         {
+            TournamentRoundModel startRound = CheckCurrentRound(tournament);
+            
             // Assign actual winner of current matchup
             SetMatchupWinner(currMatchup);
 
             // Update child matchup TeamCompeting object after matchup finish
             UpdateMatchupChildMatchup(tournament, currMatchup);
+
+            TournamentRoundModel endRound = CheckCurrentRound(tournament);
+
+            if(startRound != endRound && endRound != null)
+            {
+                endRound.SendMailForCurrentRound();
+            }
+        }
+        public static void SendMailForCurrentRound(this TournamentRoundModel round)
+        {
+            foreach(var matchup in round.MatchUps)
+            {
+                foreach(var matchEntry in matchup.Entries)
+                {
+                    foreach (var teamMember in matchEntry.TeamCompeting.TeamMembers)
+                    {
+                        AlertPersonForMatchup(
+                            teamMember.PersonModel, 
+                            teamMember.TeamModel.TeamName,
+                            matchup.Entries.Where(e => e.TeamCompeting != matchEntry.TeamCompeting).FirstOrDefault(),
+                            matchup.DisplayName,
+                            round.Tournament.TournamentName);
+                    }
+                }
+            }
+        }
+
+        private static void AlertPersonForMatchup(PersonModel person, string teamName, MatchupEntryModel matchupEntryModel, string displayName, string tournamentName)
+        {
+            string toMailAddress = person.EmailAddress;
+            string mailSubject = "";
+            StringBuilder body = new StringBuilder();
+
+            mailSubject = $"Tournament-{tournamentName}, Matchup {displayName} Email Remind";
+
+            if(matchupEntryModel == null)
+            {
+                body.AppendLine($"<h1>Tournaament: {tournamentName}</h1>");
+                body.AppendLine($"<h2>Matchup {displayName}</h2>");
+                body.AppendLine($"You have a bye week this round, please enjoy.");
+            }
+            else
+            {
+                body.AppendLine($"<h1>Tournaament: {tournamentName}</h1>");
+                body.AppendLine($"<h2>Matchup {displayName}</h2>");
+
+                body.AppendLine($"You have will have competition with {matchupEntryModel.TeamCompeting.TeamName}.");
+                body.AppendLine($"Please do preparation.");
+            }
+
+            EmailLogic.SendEmail(toMailAddress, mailSubject, body.ToString());
         }
 
         private static void UpdateMatchupChildMatchup(TournamentModel tournament, MatchupModel matchup)
@@ -141,7 +201,6 @@ namespace TrackerLibrary
                 }
             }
         }
-
         private static int NumberOfByes(int rounds, int numberOfTeams)
         {
             int output = 0;
@@ -156,7 +215,6 @@ namespace TrackerLibrary
 
             return output;
         }
-
         private static int FindNumberOfRounds(int teamCount)
         {
             int output = 1;
@@ -170,7 +228,6 @@ namespace TrackerLibrary
 
             return output;
         }
-
         /// <summary>
         /// Return a randmized list according to the input team list
         /// </summary>

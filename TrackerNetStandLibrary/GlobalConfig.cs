@@ -53,5 +53,10 @@ namespace TrackerLibrary
                     break;
             }
         }
+
+        public static string GetAppSettingValue(string key)
+        {
+            return ConfigurationManager.AppSettings[key];
+        }
     }
 }
