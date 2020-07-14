@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -119,6 +120,87 @@ namespace TrackerLibrary
             {
                 endRound.SendMailForCurrentRound();
             }
+
+            if(endRound == null)
+            {
+                CompleteTournament(tournament);
+            }
+        }
+        private static void CompleteTournament(TournamentModel model)
+        {
+            // Update tournament model status to 1
+            // Get the first winner
+            TeamModel winners = model.Rounds.Last().MatchUps.First().Winner;
+            // Get the second one in final competetion
+            TeamModel runnderUp = model.Rounds.Last().MatchUps.First().Entries.Where(e => e.TeamCompeting != winners).First().TeamCompeting;
+
+            decimal winnerPrize = 0;
+            decimal runnerUpPrize = 0;
+
+            if(model.TournamentPrizeModels.Count > 0)
+            {
+                decimal totalIncome = model.TournamentEntryModels.Count * model.EntryFee;
+
+                PrizeModel firstPlacePrize = model.TournamentPrizeModels.Where(x => x.Prize.PlaceNumber == 1).FirstOrDefault().Prize;
+                PrizeModel secondPlacePrize = model.TournamentPrizeModels.Where(x => x.Prize.PlaceNumber == 2).FirstOrDefault().Prize;
+
+                if(firstPlacePrize !=null)
+                {
+                    winnerPrize = firstPlacePrize.CalcualtePrizeModel(totalIncome);
+                }
+
+                if(secondPlacePrize !=null)
+                {
+                    runnerUpPrize = secondPlacePrize.CalcualtePrizeModel(totalIncome);
+                }
+            }
+
+            // Send mail to all tournaments
+
+            string subject = "";
+            StringBuilder body = new StringBuilder();
+
+            subject = $"In {model.TournamentName}, {winners.TeamName} has won!";
+
+            body.AppendLine("<h1>We have a winner!</h1>");
+            body.AppendLine("<p>Congratulations to our winner on a greate tournament.</p>");
+            body.AppendLine("<br />");
+
+            if(winnerPrize > 0)
+            {
+                body.AppendLine($"<p>{winners.TeamName} will receive ${winnerPrize}");
+            }
+            if(runnerUpPrize > 0)
+            {
+                body.AppendLine($"<p>{runnderUp.TeamName} will receive ${runnerUpPrize}");
+            }
+
+            body.AppendLine("Thanks for a great tournament everyone!");
+            body.AppendLine("~Tournament Tracker");
+
+            List<string> bcc = new List<string>();
+
+            model.TournamentEntryModels.ToList().ForEach(te => te.Team.TeamMembers.ToList().ForEach(tm => bcc.Add(tm.PersonModel.EmailAddress)) );
+
+            EmailLogic.SendEmail(new List<string>(), bcc, subject, body.ToString());
+
+            //complete tournament
+            model.CompleteTournament();
+        }
+        private static decimal CalcualtePrizeModel(this PrizeModel prize, decimal totalIncome)
+        {
+            decimal output = 0;
+
+            if(prize.PrizeAmount > 0)
+            {
+                output = prize.PrizeAmount;
+            }
+            else if(prize.PrizePercentage > 0)
+            {
+                output = totalIncome * (decimal)(prize.PrizePercentage / 100);
+            }
+
+            return output;
         }
         public static void SendMailForCurrentRound(this TournamentRoundModel round)
         {

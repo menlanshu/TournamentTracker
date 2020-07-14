@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 using System.Text;
 using TrackerLibrary.Attributes;
 
@@ -12,6 +13,7 @@ namespace TrackerLibrary.Models
     [Table("Tournaments")]
     public class TournamentModel
     {
+        public event EventHandler<DateTime> OnTournamentComplete;
         public int Id { get; set; }
         /// <summary>
         /// Name of this Tournament
@@ -37,5 +39,10 @@ namespace TrackerLibrary.Models
         /// </summary>
         [ExcludeFromTextFile]
         public virtual List<TournamentRoundModel> Rounds { get; set; } = new List<TournamentRoundModel>();
+
+        public void CompleteTournament()
+        {
+            OnTournamentComplete?.Invoke(this, DateTime.Now);
+        }
     }
 }

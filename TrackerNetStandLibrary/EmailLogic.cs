@@ -13,11 +13,21 @@ namespace TrackerLibrary
         private static string DisplayName = GlobalConfig.GetAppSettingValue("displayName");
         public static void SendEmail(string to, string Subject, string body)
         {
+            SendEmail(new List<string> { to }, new List<string>(), Subject, body);
+        }
+        public static void SendEmail(List<string> to, List<string> bcc, string Subject, string body)
+        {
             MailAddress fromAddress = new MailAddress(EmailAddress, DisplayName);
-            MailAddress toAddress = new MailAddress(to);
 
-            MailMessage message = new MailMessage(fromAddress, toAddress);
+            MailMessage message = new MailMessage();
+
+            message.From = fromAddress;
+
+            to.ForEach(t => message.To.Add(t));
+            bcc.ForEach(t => message.Bcc.Add(t));
             message.Subject = Subject;
+
+            message.IsBodyHtml = true;
             message.Body = body;
 
             SmtpClient smtpClient = new SmtpClient();

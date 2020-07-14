@@ -16,16 +16,20 @@ namespace TrackerUI
     public partial class TournamentViewerForm : Form
     {
         private TournamentModel _tournament;
-        private List<TournamentRoundModel> _rounds;
         public TournamentViewerForm(TournamentModel tournament)
         {
             InitializeComponent();
 
             _tournament = tournament;
-            _rounds = _tournament.Rounds;
+            _tournament.OnTournamentComplete += Tournament_OnTournamentComplete;
 
             LoadFormData();
             LoadRounds();
+        }
+
+        private void Tournament_OnTournamentComplete(object sender, DateTime e)
+        {
+            this.Close();
         }
 
         private void LoadFormData()
